@@ -19,18 +19,18 @@ jobs:
   strategy:
       rolling:
         maxParallel: 2
-        preDeploy:
-          steps:
-          - download: current
-            artifact: drop
-          - script: echo initialize, cleanup, backup, install certs
         deploy:
           steps:
           - task: Bash@3
             inputs:
               targetType: 'inline'
               script: |
-                echo $(NAP)
+                if [ ! -d '/etc/ssl/nginx' ]
+                then
+                  sudo mkdir -p /etc/ssl/nginx
+                fi
+                echo $(NGINX_REPO_KEY) | base64 -d > /etc/ssl/nginx/nginx-repo.key
+                echo $(NGINX_REPO_CRT) | base64 -d > /etc/ssl/nginx/nginx-repo.crt
         routeTraffic:
           steps:
           - script: echo routing traffic
