@@ -39,7 +39,8 @@ jobs:
             inputs:
               targetType: 'inline'
               script: |
-                sudo apt-get install apt-transport-https lsb-release ca-certificates
+                export DEBIAN_FRONTEND=noninteractive
+                sudo -E apt-get install -y apt-transport-https lsb-release ca-certificates
                 sudo wget https://cs.nginx.com/static/keys/nginx_signing.key && sudo apt-key add nginx_signing.key
                 printf "deb https://plus-pkgs.nginx.com/$(APT_SYSTEM) `lsb_release -cs` nginx-plus\n" | sudo tee /etc/apt/sources.list.d/nginx-plus.list
                 [ -f /etc/apt/apt.conf.d/90nginx ] || sudo wget -P /etc/apt/apt.conf.d https://cs.nginx.com/static/files/90nginx
@@ -54,9 +55,10 @@ jobs:
             inputs:
               targetType: 'inline'
               script: |
-                sudo apt-get update
-                sudo apt-get install nginx-plus
-                [ "$(NAP)" == "true" ] && sudo apt-get install app-protect app-protect-attack-signatures
+                export DEBIAN_FRONTEND=noninteractive
+                sudo -E apt-get update
+                dpkg -l | grep nginx-plus || sudo -E apt-get -y install nginx-plus
+                dpkg -l | grep app-protect || [ "$(NAP)" == "true" ] && sudo -E apt-get install -y app-protect app-protect-attack-signatures
         on:
           failure:
             steps:
