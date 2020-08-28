@@ -3,8 +3,8 @@
 variables:
   ADO_ENV: $(azureDevOpsEnvironment)
   ADO_TAG: $(azureDevOpsTag)
-  NAP: false
-  NIGNX_REPO_KEY: $(nginxRepoKey)
+  NAP: true
+  NGINX_REPO_KEY: $(nginxRepoKey)
   NGINX_REPO_CRT: $(nginxRepoCrt)
   APT_SYSTEM: debian                    # debian or ubuntu
 
