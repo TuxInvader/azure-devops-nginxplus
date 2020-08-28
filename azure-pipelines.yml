@@ -6,6 +6,7 @@ variables:
   NAP: false
   NIGNX_REPO_KEY: $(nginxRepoKey)
   NGINX_REPO_CRT: $(nginxRepoCrt)
+  APT_SYSTEM: debian                    # debian or ubuntu
 
 trigger:
 - none
@@ -20,8 +21,10 @@ jobs:
       rolling:
         maxParallel: 2
         deploy:
+
           steps:
           - task: Bash@3
+            displayName: Setup NGINX Plus repository certs
             inputs:
               targetType: 'inline'
               script: |
@@ -29,14 +32,28 @@ jobs:
                 then
                   sudo mkdir -p /etc/ssl/nginx
                 fi
-                echo $(NGINX_REPO_KEY) | base64 -d > /etc/ssl/nginx/nginx-repo.key
-                echo $(NGINX_REPO_CRT) | base64 -d > /etc/ssl/nginx/nginx-repo.crt
-        routeTraffic:
-          steps:
-          - script: echo routing traffic
-        postRouteTraffic:
-          steps:
-          - script: echo health check post-route traffic
+                echo $(NGINX_REPO_KEY) | base64 -d | sudo tee /etc/ssl/nginx/nginx-repo.key
+                echo $(NGINX_REPO_CRT) | base64 -d | sudo tee /etc/ssl/nginx/nginx-repo.crt
+          - task: Bash@3
+            displayName: Setup Apt
+            inputs:
+              targetType: 'inline'
+              script: |
+                sudo wget https://cs.nginx.com/static/keys/nginx_signing.key && sudo apt-key add nginx_signing.key
+                [ "$(NAP)" == "true" ] && sudo wget https://cs.nginx.com/static/keys/app-protect.key && sudo apt-key add app-protect.key
+                sudo apt-get install apt-transport-https lsb-release ca-certificates
+                printf "deb https://plus-pkgs.nginx.com/$(APT_SYSTEM) `lsb_release -cs` nginx-plus\n" | sudo tee /etc/apt/sources.list.d/nginx-plus.list
+                [ "$(NAP)" == "true" ] && printf "deb https://app-protect-sigs.nginx.com/$(APT_SYSTEM) `lsb_release -cs` nginx-plus\n" | sudo tee /etc/apt/sources.list.d/app-protect-sigs.list
+                sudo wget -P /etc/apt/apt.conf.d https://cs.nginx.com/static/files/90nginx
+                [ "$(NAP)" == "true" ] && sudo wget -P /etc/apt/apt.conf.d https://cs.nginx.com/static/files/90app-protect-sigs
+          - task: Bash@3
+            displayName: Install NGINX Plus
+            inputs:
+              targetType: 'inline'
+              script: |
+                sudo apt-get update
+                sudo apt-get install nginx-plus
+                [ "$(NAP)" == "true" ] && sudo apt-get install app-protect app-protect-attack-signatures
         on:
           failure:
             steps:
