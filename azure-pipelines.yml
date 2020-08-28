@@ -6,7 +6,7 @@ variables:
   NAP: true
   NGINX_REPO_KEY: $(nginxRepoKey)
   NGINX_REPO_CRT: $(nginxRepoCrt)
-  APT_SYSTEM: debian                    # debian or ubuntu
+  APT_SYSTEM: ubuntu                    # debian or ubuntu
 
 trigger:
 - none
