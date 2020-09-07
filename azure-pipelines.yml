@@ -34,6 +34,7 @@ jobs:
                 fi
                 echo $(NGINX_REPO_KEY) | base64 -d | sudo tee /etc/ssl/nginx/nginx-repo.key
                 echo $(NGINX_REPO_CRT) | base64 -d | sudo tee /etc/ssl/nginx/nginx-repo.crt
+
           - task: Bash@3
             displayName: Setup Apt
             inputs:
@@ -41,15 +42,10 @@ jobs:
               script: |
                 export DEBIAN_FRONTEND=noninteractive
                 sudo -E apt-get install -y apt-transport-https lsb-release ca-certificates
-                sudo wget https://cs.nginx.com/static/keys/nginx_signing.key && sudo apt-key add nginx_signing.key
+                sudo wget http://nginx.org/keys/nginx_signing.key && sudo apt-key add nginx_signing.key
                 printf "deb https://plus-pkgs.nginx.com/$(APT_SYSTEM) `lsb_release -cs` nginx-plus\n" | sudo tee /etc/apt/sources.list.d/nginx-plus.list
                 [ -f /etc/apt/apt.conf.d/90nginx ] || sudo wget -P /etc/apt/apt.conf.d https://cs.nginx.com/static/files/90nginx
-                if [ "$(NAP)" == "true" ]
-                then
-                  sudo wget https://cs.nginx.com/static/keys/app-protect.key && sudo apt-key add app-protect.key
-                  printf "deb https://app-protect-sigs.nginx.com/$(APT_SYSTEM) `lsb_release -cs` nginx-plus\n" | sudo tee /etc/apt/sources.list.d/app-protect-sigs.list
-                  [ -f /etc/apt/apt.conf.d/90app-protect-sigs ] || sudo wget -P /etc/apt/apt.conf.d https://cs.nginx.com/static/files/90app-protect-sigs
-                fi
+
           - task: Bash@3
             displayName: Install NGINX Plus
             inputs:
