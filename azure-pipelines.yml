@@ -72,7 +72,6 @@ jobs:
             inputs:
               targetType: 'inline'
               script: |
-                set -x
                 export DEBIAN_FRONTEND=noninteractive
                 sudo -E apt-get update
                 dpkg -l | grep nginx-plus
@@ -91,6 +90,7 @@ jobs:
                   fi
                 fi
                 [ "${RESTART_NGINX}" == "true" ] && sudo systemctl restart nginx
+                exit 0
           
           - task: Bash@3
             displayName: Install and Register Agent
