@@ -91,7 +91,7 @@ jobs:
                   fi
                 fi
 
-                [ ${RESTART_NGINX} == "true" ] && sudo systemctl restart nginx
+                [ "${RESTART_NGINX}" == "true" ] && sudo systemctl restart nginx
           
           - task: Bash@3
             displayName: Install and Register Agent
