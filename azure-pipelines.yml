@@ -25,6 +25,8 @@ variables:
   CTRL_API_KEY: $(controller_api_key)
   # The location to register the NGINX agent.
   CTRL_LOCATION: $(controller_location)
+  # Verify Controller certificate
+  CTRL_VERIFY: False
   
   # Enable Agent Beta features?
   AGENT_BETA: true
@@ -102,6 +104,10 @@ jobs:
                 if [ ! -f "${AGENT_CONF}" ]
                 then
                   curl -k -sS -L $(CTRL_URI):8443/1.4/install/controller/ > install.sh
+                  if [ "$(CTRL_VERIFY)" == "False" ]
+                  then
+                    sed -i -re 's/VERIFY_CERT="True"/VERIFY_CERT="False"/' install.sh
+                  fi
                   API_KEY=$(CTRL_API_KEY) sh ./install.sh -l $(CTRL_LOCATION)
                 fi
                 if [ "$(AGENT_BETA)" == "true" ]
