@@ -54,7 +54,7 @@ jobs:
                 export DEBIAN_FRONTEND=noninteractive
                 sudo -E apt-get update
                 dpkg -l | grep nginx-plus || sudo -E apt-get -y install nginx-plus
-                dpkg -l | grep app-protect || [ "$(NAP)" == "true" ] && sudo -E apt-get install -y app-protect app-protect-attack-signatures
+                dpkg -l | grep app-protect || [ "$(NAP)" == "true" ] && sudo -E apt-get install -y app-protect
         on:
           failure:
             steps:
