@@ -99,7 +99,7 @@ jobs:
               script: |
                 [ "$(CTRL_REG)" != "true" ] && echo "Skipped" && exit 0
                 AGENT_CONF=/etc/controller-agent/agent.conf
-                [ ! -f "${AGENT_CONF}" ]
+                if [ ! -f "${AGENT_CONF}" ]
                 then
                   curl -k -sS -L $(CTRL_URI):8443/1.4/install/controller/ > install.sh
                   API_KEY=$(CTRL_API_KEY) sh ./install.sh -l $(CTRL_LOCATION)
