@@ -27,9 +27,9 @@ variables:
   CTRL_API_KEY: $(controller_api_key)
 
   # The location to register the NGINX agent.
-  AGENT_LOCATION: $(agent_location)
+  AGENT_LOC: $(agent_location)
   # Enable Agent Beta features (true or false)?
-  AGENT_BETA: $(agent_beta)
+  AGENT_BETA: $(agent_enable_beta)
 
 trigger:
 - none
@@ -108,7 +108,7 @@ jobs:
                   then
                     sed -i -re 's/VERIFY_CERT="True"/VERIFY_CERT="False"/' install.sh
                   fi
-                  API_KEY=$(CTRL_API_KEY) sh ./install.sh -l $(AGENT_LOCATION) -i `hostname -s`
+                  API_KEY=$(CTRL_API_KEY) sh ./install.sh -l $(AGENT_LOC) -i `hostname -s`
                 fi
                 if [ "$(AGENT_BETA)" == "true" ]
                 then
