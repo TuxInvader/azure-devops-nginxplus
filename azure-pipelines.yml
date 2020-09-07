@@ -108,7 +108,7 @@ jobs:
                   then
                     sed -i -re 's/VERIFY_CERT="True"/VERIFY_CERT="False"/' install.sh
                   fi
-                  API_KEY=$(CTRL_API_KEY) sh ./install.sh -l $(AGENT_LOCATION)
+                  API_KEY=$(CTRL_API_KEY) sh ./install.sh -l $(AGENT_LOCATION) -i `hostname -s`
                 fi
                 if [ "$(AGENT_BETA)" == "true" ]
                 then
