@@ -112,10 +112,10 @@ jobs:
                 fi
                 if [ "$(AGENT_BETA)" == "true" ]
                 then
-                  grep -Fxq "beta = True" ${AGENT_CONF}
+                  sudo grep -Fxq "beta = True" ${AGENT_CONF}
                   if [ $? != 0 ]
                   then
-                    sed "/\[extensions\]/a beta = True" ${AGENT_CONF} -i
+                    sudo sed "/\[extensions\]/a beta = True" ${AGENT_CONF} -i
                   fi
                 fi
                 sudo systemctl restart controller-agent
