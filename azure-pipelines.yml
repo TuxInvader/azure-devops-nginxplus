@@ -1,12 +1,30 @@
 # Install and/or upgrade NGINX Plus in the Specificied environment
 
 variables:
+
+  # Environment name and tags
   ADO_ENV: $(azureDevOpsEnvironment)
   ADO_TAG: $(azureDevOpsTag)
+
+  # Install NGINX App Protect?
   NAP: true
+
+  # NGINX Plus repo Cert and Key
   NGINX_REPO_KEY: $(nginxRepoKey)
   NGINX_REPO_CRT: $(nginxRepoCrt)
-  APT_SYSTEM: ubuntu                    # debian or ubuntu
+
+  # Is this system `debian` or `ubuntu`
+  APT_SYSTEM: ubuntu
+
+  # Register with NGINX Controller?
+  CTRL_REG: false
+
+  # API endpoint of controller eg https://mycontroller.cloud.net
+  CTRL_URI: $(controller_uri)
+  # API Key needed to register new NGINX agents
+  CTRL_API_KEY: $(controller_api_key)
+  # The location to register the NGINX agent.
+  CTRL_LOCATION: $(controller_location)
 
 trigger:
 - none
@@ -55,6 +73,13 @@ jobs:
                 sudo -E apt-get update
                 dpkg -l | grep nginx-plus || sudo -E apt-get -y install nginx-plus
                 dpkg -l | grep app-protect || [ "$(NAP)" == "true" ] && sudo -E apt-get install -y app-protect
+          
+          - task: Bash@3
+            displayName: Install and Register Agent
+            inputs:
+              targetType: inline
+              script: |
+                [ "$(CTRL_REG)" != "true" ] && echo "Skipped" && exit 0
         on:
           failure:
             steps:
