@@ -6,8 +6,8 @@ variables:
   ADO_ENV: $(azureDevOpsEnvironment)
   ADO_TAG: $(azureDevOpsTag)
 
-  # Install NGINX App Protect?
-  NAP: true
+  # Install NGINX App Protect (True or False)?
+  NAP: True
 
   # NGINX Plus repo Cert and Key
   NGINX_REPO_KEY: $(nginxRepoKey)
@@ -16,20 +16,20 @@ variables:
   # Is this system `debian` or `ubuntu`
   APT_SYSTEM: ubuntu
 
-  # Register with NGINX Controller?
-  CTRL_REG: true
+  # Register with NGINX Controller (True or False)?
+  CTRL_REG: $(controller_register)
 
   # API endpoint of controller eg https://mycontroller.cloud.net
   CTRL_URI: $(controller_uri)
+  # Verify Controller certificate (True or False)?
+  CTRL_VERIFY: $(controller_verify)
   # API Key needed to register new NGINX agents
   CTRL_API_KEY: $(controller_api_key)
+
   # The location to register the NGINX agent.
-  CTRL_LOCATION: $(controller_location)
-  # Verify Controller certificate
-  CTRL_VERIFY: False
-  
-  # Enable Agent Beta features?
-  AGENT_BETA: true
+  AGENT_LOCATION: $(agent_location)
+  # Enable Agent Beta features (True or False)?
+  AGENT_BETA: $(agent_beta)
 
 trigger:
 - none
@@ -108,7 +108,7 @@ jobs:
                   then
                     sed -i -re 's/VERIFY_CERT="True"/VERIFY_CERT="False"/' install.sh
                   fi
-                  API_KEY=$(CTRL_API_KEY) sh ./install.sh -l $(CTRL_LOCATION)
+                  API_KEY=$(CTRL_API_KEY) sh ./install.sh -l $(AGENT_LOCATION)
                 fi
                 if [ "$(AGENT_BETA)" == "true" ]
                 then
