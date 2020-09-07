@@ -17,7 +17,7 @@ variables:
   APT_SYSTEM: ubuntu
 
   # Register with NGINX Controller?
-  CTRL_REG: false
+  CTRL_REG: true
 
   # API endpoint of controller eg https://mycontroller.cloud.net
   CTRL_URI: $(controller_uri)
@@ -25,6 +25,9 @@ variables:
   CTRL_API_KEY: $(controller_api_key)
   # The location to register the NGINX agent.
   CTRL_LOCATION: $(controller_location)
+  
+  # Enable Agent Beta features?
+  AGENT_BETA: true
 
 trigger:
 - none
@@ -71,8 +74,24 @@ jobs:
               script: |
                 export DEBIAN_FRONTEND=noninteractive
                 sudo -E apt-get update
-                dpkg -l | grep nginx-plus || sudo -E apt-get -y install nginx-plus
-                dpkg -l | grep app-protect || [ "$(NAP)" == "true" ] && sudo -E apt-get install -y app-protect
+                dpkg -l | grep nginx-plus
+                if [ $? != 0 ]
+                then
+                  sudo -E apt-get -y install nginx-plus
+                  RESTART_NGINX=true
+                fi
+
+                dpkg -l | grep app-protect
+                if [ $? != 0 ]
+                then
+                  if [ "$(NAP)" == "true" ]
+                  then
+                    sudo -E apt-get install -y app-protect
+                    RESTART_NGINX=true
+                  fi
+                fi
+
+                [ ${RESTART_NGINX} == "true" ] && sudo systemctl restart nginx
           
           - task: Bash@3
             displayName: Install and Register Agent
@@ -80,8 +99,21 @@ jobs:
               targetType: inline
               script: |
                 [ "$(CTRL_REG)" != "true" ] && echo "Skipped" && exit 0
-                curl -k -sS -L $(CTRL_URI):8443/1.4/install/controller/ > install.sh
-                API_KEY=$(CTRL_API_KEY) sh ./install.sh -l $(CTRL_LOCATION)
+                AGENT_CONF=/etc/controller-agent/agent.conf
+                [ ! -f "${AGENT_CONF}" ]
+                then
+                  curl -k -sS -L $(CTRL_URI):8443/1.4/install/controller/ > install.sh
+                  API_KEY=$(CTRL_API_KEY) sh ./install.sh -l $(CTRL_LOCATION)
+                fi
+                if [ "$(AGENT_BETA)" == "true" ]
+                then
+                  grep -Fxq "beta = True" ${AGENT_CONF}
+                  if [ $? != 0 ]
+                  then
+                    sed "/\[extensions\]/a beta = True" ${AGENT_CONF} -i
+                  fi
+                fi
+                sudo systemctl restart controller-agent
         on:
           failure:
             steps:
