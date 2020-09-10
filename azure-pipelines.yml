@@ -7,7 +7,7 @@ variables:
   ADO_TAG: $(azureDevOpsTag)
 
   # Install NGINX App Protect (true or false)?
-  NAP: true
+  NAP: $(nginxAP)
 
   # NGINX Plus repo Cert and Key (base64 encoded)
   NGINX_REPO_KEY: $(nginxRepoKey)
