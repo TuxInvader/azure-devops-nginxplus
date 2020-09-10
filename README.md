@@ -1,14 +1,9 @@
 # azure-devops-nginxplus
 NGINX Plus Deployment Pipeline for Azure DevOps
 
-## Azure Service Connections
-This pipeline requires connections to an Docker Registry for hosting the KIC images,
-and also a connection to the Azure Resource Manager. You will need to create both of these 
-in your project settings under `pipeline` -> `service connections`
-
-For each connection click the `New service connection` button in the `Service connections` page
-and then create an `Azure Resource Manager` connection and a `Docker Registry`. Make a note of
-the connection names for use in pipeline variables.
+This pipeline will deploy NGINX Plus into an ADO `Environment` and optionally register the
+instance with NGINX Controller. It can also install NGINX AppProtect if you have a license
+for that.
 
 ## Creating the pipeline
 You will first need to fork this repository on Github, then in you Azure DevOps Project
